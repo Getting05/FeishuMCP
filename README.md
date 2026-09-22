@@ -4,6 +4,8 @@
 
 ## 已实现工具
 
+- `list_feishu_wiki_spaces`：列出应用可访问的知识库
+- `create_feishu_wiki_document`：在指定知识库中新建 Docx 页面
 - `resolve_feishu_url`：解析 Wiki/Docx URL，取得底层 `document_id`
 - `read_feishu_document`：读取文档文本块及其 `block_id`
 - `find_feishu_blocks`：按文本查找块
@@ -33,7 +35,7 @@
 
 在飞书开放平台为自建应用申请并发布与以下操作对应的权限：
 
-1. 查看知识库（用于解析 `/wiki/` URL）
+1. 查看和编辑知识库（用于列出知识库、创建页面及解析 `/wiki/` URL）
 2. 查看云文档内容
 3. 编辑云文档内容
 
