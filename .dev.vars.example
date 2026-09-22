@@ -1,0 +1,4 @@
+FEISHU_APP_ID=cli_xxxxxxxxxxxxx
+FEISHU_APP_SECRET=xxxxxxxxxxxxxxxx
+# Optional. If set, callers must send Authorization: Bearer <value>.
+# MCP_API_KEY=replace-with-a-long-random-value
