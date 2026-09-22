@@ -202,6 +202,42 @@ async function resolveDocument(
   };
 }
 
+async function listWikiSpaces(env: Env): Promise<
+  Array<{
+    space_id: string;
+    name?: string;
+    description?: string;
+    visibility?: string;
+  }>
+> {
+  const spaces: Array<{
+    space_id: string;
+    name?: string;
+    description?: string;
+    visibility?: string;
+  }> = [];
+  let pageToken: string | undefined;
+
+  do {
+    const query = new URLSearchParams({ page_size: "50" });
+    if (pageToken) query.set("page_token", pageToken);
+    const data = await feishuRequest<{
+      items?: Array<{
+        space_id: string;
+        name?: string;
+        description?: string;
+        visibility?: string;
+      }>;
+      has_more?: boolean;
+      page_token?: string;
+    }>(env, `/wiki/v2/spaces?${query.toString()}`);
+    spaces.push(...(data.items ?? []));
+    pageToken = data.has_more ? data.page_token : undefined;
+  } while (pageToken);
+
+  return spaces;
+}
+
 async function listAllBlocks(
   env: Env,
   documentId: string,
@@ -314,6 +350,72 @@ function toolError(error: unknown) {
 
 function createServer(env: Env) {
   const server = new McpServer({ name: "Feishu MCP", version: "1.0.0" });
+
+  server.registerTool(
+    "list_feishu_wiki_spaces",
+    {
+      description:
+        "List Feishu Wiki knowledge spaces accessible to the app. Use this to resolve a space name such as dobot to its space_id.",
+      inputSchema: {},
+    },
+    async () => {
+      try {
+        const spaces = await listWikiSpaces(env);
+        return textResult({ space_count: spaces.length, spaces });
+      } catch (error) {
+        return toolError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "create_feishu_wiki_document",
+    {
+      description:
+        "Create a new Docx page in a Feishu Wiki knowledge space. Returns both the Wiki node token and underlying document token.",
+      inputSchema: {
+        space_id: z
+          .string()
+          .min(1)
+          .describe("Knowledge space ID returned by list_feishu_wiki_spaces"),
+        title: z.string().min(1).max(200).describe("Title of the new Wiki page"),
+        parent_node_token: z
+          .string()
+          .optional()
+          .describe("Optional parent Wiki node token; omit to create at the space root"),
+      },
+    },
+    async ({ space_id, title, parent_node_token }) => {
+      try {
+        const body: Record<string, unknown> = {
+          obj_type: "docx",
+          node_type: "origin",
+          title,
+        };
+        if (parent_node_token) body.parent_node_token = parent_node_token;
+
+        const data = await feishuRequest<{
+          node?: {
+            space_id?: string;
+            node_token?: string;
+            obj_token?: string;
+            obj_type?: string;
+            title?: string;
+          };
+        }>(
+          env,
+          `/wiki/v2/spaces/${encodeURIComponent(space_id)}/nodes`,
+          { method: "POST", body: JSON.stringify(body) },
+        );
+        if (!data.node?.obj_token) {
+          throw new Error("Feishu created the Wiki node but returned no document token.");
+        }
+        return textResult({ success: true, node: data.node });
+      } catch (error) {
+        return toolError(error);
+      }
+    },
+  );
 
   server.registerTool(
     "resolve_feishu_url",
