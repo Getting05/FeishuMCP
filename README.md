@@ -47,7 +47,7 @@ JSON 响应原样返回（包括 `code`、`data`、分页标记）；下载等�
 {"tool":"feishu_wiki_api","arguments":{"method":"GET","path":"/wiki/v2/spaces/<space_id>/nodes?page_size=50"}}
 ```
 
-上述入口需要先设置 `MCP_API_KEY`。请把密钥配置到 Worker Secrets，并在 MCP 客户端配置 `Authorization: Bearer <MCP_API_KEY>`；不要把密钥提交到仓库。现有七个简化工具仍可使用原有连接方式。
+上述入口与其他工具使用相同的连接方式，MCP 服务端不检查 `MCP_API_KEY`。Worker 仍须配置飞书应用凭据；不要把凭据提交到仓库。
 
 ### 适用边界
 
@@ -71,7 +71,6 @@ JSON 响应原样返回（包括 `code`、`data`、分页标记）；下载等�
 |---|---|---|
 | `FEISHU_APP_ID` | Secret | 飞书自建应用 App ID |
 | `FEISHU_APP_SECRET` | Secret | 飞书自建应用 App Secret |
-| `MCP_API_KEY` | Secret；扩展 API 必需 | 设置后 `/mcp` 要求 `Authorization: Bearer ...` |
 
 不要把真实密钥写进 GitHub。
 
@@ -115,4 +114,4 @@ npm run typecheck
 
 ## 安全提示
 
-若不设置 `MCP_API_KEY`，任何知道 Worker URL 的人理论上都能调用写入工具。正式长期使用建议配置标准 OAuth；静态 Bearer Token 只适合客户端支持自定义 Authorization Header 的个人场景。
+`/mcp` 当前不做客户端身份校验。任何知道 Worker URL 的人都能以飞书应用身份调用工具，包括编辑、删除和权限管理接口。请限制 Worker 的访问范围，或在需要公开部署时为 MCP 接口加上客户端鉴权。

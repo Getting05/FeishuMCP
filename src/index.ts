@@ -5,7 +5,6 @@ import { z } from "zod";
 interface Env {
   FEISHU_APP_ID: string;
   FEISHU_APP_SECRET: string;
-  MCP_API_KEY?: string;
 }
 
 // Only document-related Feishu APIs are exposed. Never proxy auth or other
@@ -526,9 +525,6 @@ function createServer(env: Env) {
       },
       async ({ method, path, body, upload }) => {
         try {
-          if (!env.MCP_API_KEY) {
-            throw new Error("Set MCP_API_KEY before using the expanded Feishu API tools.");
-          }
           return textResult(await openApiRequest(env, root, method, path, body, upload));
         } catch (error) {
           return toolError(error);
@@ -789,11 +785,6 @@ function createServer(env: Env) {
   return server;
 }
 
-function isAuthorized(request: Request, env: Env): boolean {
-  if (!env.MCP_API_KEY) return true;
-  return request.headers.get("Authorization") === `Bearer ${env.MCP_API_KEY}`;
-}
-
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     const url = new URL(request.url);
@@ -804,22 +795,12 @@ export default {
         status: "ok",
         mcp_endpoint: "/mcp",
         feishu_configured: Boolean(env.FEISHU_APP_ID && env.FEISHU_APP_SECRET),
-        authentication: env.MCP_API_KEY ? "bearer" : "none",
+        authentication: "none",
       });
     }
 
     if (url.pathname !== "/mcp") {
       return new Response("Not found", { status: 404 });
-    }
-
-    if (!isAuthorized(request, env)) {
-      return Response.json(
-        { error: "Unauthorized" },
-        {
-          status: 401,
-          headers: { "WWW-Authenticate": "Bearer" },
-        },
-      );
     }
 
     const handler = createMcpHandler(() => createServer(env), {
