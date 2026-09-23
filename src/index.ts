@@ -434,6 +434,78 @@ function toolError(error: unknown) {
 function createServer(env: Env) {
   const server = new McpServer({ name: "Feishu MCP", version: "1.0.0" });
 
+  server.registerTool(
+    "create_feishu_file",
+    {
+      description:
+        "Create a Feishu cloud document, spreadsheet, Bitable or folder, or create a Docx/Sheet/Bitable/Slides/Mindnote page directly inside a Wiki space. In Wiki mode supply space_id; otherwise omit it and optionally supply a cloud folder_token. Returns the new resource token and any URL returned by Feishu. Documents and sheets start empty; use editing tools to add content.",
+      inputSchema: {
+        file_type: z.enum(["docx", "sheet", "bitable", "slides", "mindnote", "folder"]),
+        title: z.string().min(1).max(255).describe("Title or folder name"),
+        space_id: z.string().min(1).optional().describe("Wiki space ID; when present create a Wiki node"),
+        parent_node_token: z.string().min(1).optional().describe("Optional parent Wiki node; requires space_id"),
+        folder_token: z.string().optional().describe("Optional cloud folder token; use empty string for the root folder"),
+      },
+    },
+    async ({ file_type, title, space_id, parent_node_token, folder_token }) => {
+      try {
+        if (space_id) {
+          if (folder_token !== undefined) throw new Error("Choose either a Wiki space_id or a cloud folder_token.");
+          if (file_type === "folder") throw new Error("The Wiki create-node API cannot create a cloud folder.");
+          const body: Record<string, string> = { obj_type: file_type, node_type: "origin", title };
+          if (parent_node_token) body.parent_node_token = parent_node_token;
+          const data = await feishuRequest<{ node?: {
+            space_id?: string; node_token?: string; obj_token?: string;
+            obj_type?: string; title?: string;
+          } }>(env, `/wiki/v2/spaces/${encodeURIComponent(space_id)}/nodes`, {
+            method: "POST", body: JSON.stringify(body),
+          });
+          if (!data.node?.node_token || !data.node.obj_token) throw new Error("Feishu returned no Wiki node or resource token.");
+          return textResult({ success: true, location: "wiki", node: data.node });
+        }
+        if (parent_node_token) throw new Error("parent_node_token requires space_id.");
+        if (file_type === "slides" || file_type === "mindnote") {
+          throw new Error("Create slides and mindnotes in a Wiki space with space_id; cloud creation is not supported by this tool.");
+        }
+        let path: string;
+        let body: Record<string, string>;
+        switch (file_type) {
+          case "docx":
+            path = "/docx/v1/documents";
+            body = { title };
+            break;
+          case "sheet":
+            path = "/sheets/v3/spreadsheets";
+            body = { title };
+            break;
+          case "bitable":
+            path = "/bitable/v1/apps";
+            body = { name: title };
+            break;
+          case "folder":
+            path = "/drive/v1/files/create_folder";
+            body = { name: title, folder_token: folder_token ?? "" };
+            break;
+        }
+        if (file_type !== "folder" && folder_token !== undefined) body.folder_token = folder_token;
+        const data = await feishuRequest<Record<string, unknown>>(env, path, {
+          method: "POST", body: JSON.stringify(body),
+        });
+        const item = file_type === "docx" ? data.document
+          : file_type === "sheet" ? data.spreadsheet
+          : file_type === "bitable" ? data.app : data;
+        const token = file_type === "folder" ? data.token
+          : file_type === "docx" ? (item as { document_id?: string } | undefined)?.document_id
+          : file_type === "sheet" ? (item as { spreadsheet_token?: string } | undefined)?.spreadsheet_token
+          : (item as { app_token?: string } | undefined)?.app_token;
+        if (!token) throw new Error(`Feishu returned no ${file_type} token.`);
+        return textResult({ success: true, location: "cloud", file_type, token, resource: item });
+      } catch (error) {
+        return toolError(error);
+      }
+    },
+  );
+
   for (const root of API_ROOTS) {
     server.registerTool(
       `feishu_${root}_api`,
