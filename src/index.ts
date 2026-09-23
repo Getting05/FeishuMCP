@@ -8,6 +8,89 @@ interface Env {
   MCP_API_KEY?: string;
 }
 
+// Only document-related Feishu APIs are exposed. Never proxy auth or other
+// tenant APIs through this endpoint, even if the caller supplies a path.
+const API_ROOTS = [
+  "bitable", "board", "docs", "docx", "drive", "mindnote",
+  "sheets", "slides", "wiki",
+] as const;
+type ApiRoot = (typeof API_ROOTS)[number];
+const MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
+
+function checkedPath(path: string, root: ApiRoot): string {
+  if (!path.startsWith(`/${root}/`) || path.includes("\\") ||
+      /%(?:2f|5c|2e|00)/i.test(path) || /[\u0000-\u001f]/.test(path)) {
+    throw new Error(`Path must begin with /${root}/ and contain no encoded separators or traversal.`);
+  }
+  const url = new URL(path, FEISHU_BASE_URL);
+  if (url.pathname.split("/").includes("..") || path.split(/[/?#]/).includes("..") ||
+      url.origin !== new URL(FEISHU_BASE_URL).origin || url.hash) {
+    throw new Error("Invalid Feishu API path.");
+  }
+  return `${url.pathname}${url.search}`;
+}
+
+function decodeBase64(value: string): Uint8Array {
+  if (value.length > Math.ceil(MAX_UPLOAD_BYTES / 3) * 4 + 4 ||
+      !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) {
+    throw new Error("Invalid or oversized base64 upload (8 MiB maximum).");
+  }
+  const binary = atob(value);
+  if (binary.length > MAX_UPLOAD_BYTES) throw new Error("Upload exceeds 8 MiB.");
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+}
+
+async function openApiRequest(
+  env: Env,
+  root: ApiRoot,
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
+  path: string,
+  body?: unknown,
+  upload?: { field: string; filename: string; content_type: string; base64: string; fields?: Record<string, string> },
+) {
+  const safePath = checkedPath(path, root);
+  if ((method === "GET" || method === "DELETE") && (body !== undefined || upload)) {
+    throw new Error("GET and DELETE do not accept a body or multipart upload.");
+  }
+  if (body !== undefined && upload) throw new Error("Use either JSON body or multipart upload.");
+  const token = await getTenantAccessToken(env);
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+  let requestBody: BodyInit | undefined;
+  if (upload) {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(upload.fields ?? {})) form.append(key, value);
+    form.append(upload.field, new Blob([decodeBase64(upload.base64) as BlobPart], { type: upload.content_type }), upload.filename);
+    requestBody = form;
+  } else if (body !== undefined) {
+    headers["Content-Type"] = "application/json; charset=utf-8";
+    requestBody = JSON.stringify(body);
+    if (requestBody.length > MAX_UPLOAD_BYTES) throw new Error("JSON body exceeds 8 MiB.");
+  }
+  const response = await fetch(`${FEISHU_BASE_URL}${safePath}`, {
+    method, headers, body: requestBody, redirect: "error",
+  });
+  const contentLength = Number(response.headers.get("content-length") ?? 0);
+  if (contentLength > MAX_RESPONSE_BYTES) throw new Error("Feishu response exceeds 8 MiB.");
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  if (bytes.length > MAX_RESPONSE_BYTES) throw new Error("Feishu response exceeds 8 MiB.");
+  const contentType = response.headers.get("content-type") ?? "application/octet-stream";
+  if (!contentType.includes("json")) {
+    if (!response.ok) throw new Error(`Feishu HTTP ${response.status}: ${new TextDecoder().decode(bytes.slice(0, 300))}`);
+    // Downloads are returned as base64 so MCP JSON transport remains valid.
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 8192) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+    }
+    return { status: response.status, content_type: contentType, base64: btoa(binary) };
+  }
+  const payload = JSON.parse(new TextDecoder().decode(bytes)) as FeishuEnvelope<unknown>;
+  if (!response.ok || (payload.code !== undefined && payload.code !== 0)) {
+    throw new Error(`Feishu API error ${payload.code ?? response.status}: ${payload.msg ?? response.statusText}`);
+  }
+  return payload;
+}
+
 interface FeishuEnvelope<T> {
   code?: number;
   msg?: string;
@@ -350,6 +433,109 @@ function toolError(error: unknown) {
 
 function createServer(env: Env) {
   const server = new McpServer({ name: "Feishu MCP", version: "1.0.0" });
+
+  server.registerTool(
+    "create_feishu_file",
+    {
+      description:
+        "Create a Feishu cloud document, spreadsheet, Bitable or folder, or create a Docx/Sheet/Bitable/Slides/Mindnote page directly inside a Wiki space. In Wiki mode supply space_id; otherwise omit it and optionally supply a cloud folder_token. Returns the new resource token and any URL returned by Feishu. Documents and sheets start empty; use editing tools to add content.",
+      inputSchema: {
+        file_type: z.enum(["docx", "sheet", "bitable", "slides", "mindnote", "folder"]),
+        title: z.string().min(1).max(255).describe("Title or folder name"),
+        space_id: z.string().min(1).optional().describe("Wiki space ID; when present create a Wiki node"),
+        parent_node_token: z.string().min(1).optional().describe("Optional parent Wiki node; requires space_id"),
+        folder_token: z.string().optional().describe("Optional cloud folder token; use empty string for the root folder"),
+      },
+    },
+    async ({ file_type, title, space_id, parent_node_token, folder_token }) => {
+      try {
+        if (space_id) {
+          if (folder_token !== undefined) throw new Error("Choose either a Wiki space_id or a cloud folder_token.");
+          if (file_type === "folder") throw new Error("The Wiki create-node API cannot create a cloud folder.");
+          const body: Record<string, string> = { obj_type: file_type, node_type: "origin", title };
+          if (parent_node_token) body.parent_node_token = parent_node_token;
+          const data = await feishuRequest<{ node?: {
+            space_id?: string; node_token?: string; obj_token?: string;
+            obj_type?: string; title?: string;
+          } }>(env, `/wiki/v2/spaces/${encodeURIComponent(space_id)}/nodes`, {
+            method: "POST", body: JSON.stringify(body),
+          });
+          if (!data.node?.node_token || !data.node.obj_token) throw new Error("Feishu returned no Wiki node or resource token.");
+          return textResult({ success: true, location: "wiki", node: data.node });
+        }
+        if (parent_node_token) throw new Error("parent_node_token requires space_id.");
+        if (file_type === "slides" || file_type === "mindnote") {
+          throw new Error("Create slides and mindnotes in a Wiki space with space_id; cloud creation is not supported by this tool.");
+        }
+        let path: string;
+        let body: Record<string, string>;
+        switch (file_type) {
+          case "docx":
+            path = "/docx/v1/documents";
+            body = { title };
+            break;
+          case "sheet":
+            path = "/sheets/v3/spreadsheets";
+            body = { title };
+            break;
+          case "bitable":
+            path = "/bitable/v1/apps";
+            body = { name: title };
+            break;
+          case "folder":
+            path = "/drive/v1/files/create_folder";
+            body = { name: title, folder_token: folder_token ?? "" };
+            break;
+        }
+        if (file_type !== "folder" && folder_token !== undefined) body.folder_token = folder_token;
+        const data = await feishuRequest<Record<string, unknown>>(env, path, {
+          method: "POST", body: JSON.stringify(body),
+        });
+        const item = file_type === "docx" ? data.document
+          : file_type === "sheet" ? data.spreadsheet
+          : file_type === "bitable" ? data.app : data;
+        const token = file_type === "folder" ? data.token
+          : file_type === "docx" ? (item as { document_id?: string } | undefined)?.document_id
+          : file_type === "sheet" ? (item as { spreadsheet_token?: string } | undefined)?.spreadsheet_token
+          : (item as { app_token?: string } | undefined)?.app_token;
+        if (!token) throw new Error(`Feishu returned no ${file_type} token.`);
+        return textResult({ success: true, location: "cloud", file_type, token, resource: item });
+      } catch (error) {
+        return toolError(error);
+      }
+    },
+  );
+
+  for (const root of API_ROOTS) {
+    server.registerTool(
+      `feishu_${root}_api`,
+      {
+        description: `Call a Feishu OpenAPI endpoint under /${root}/ using tenant_access_token. Supports JSON CRUD, paginated requests, binary downloads returned as base64, and multipart uploads. Supply an exact path from Feishu's API documentation including version, resource IDs and query string. The app must also have access to the target resource; some endpoints require a user_access_token and cannot be called with tenant credentials.`,
+        inputSchema: {
+          method: z.enum(["GET", "POST", "PATCH", "PUT", "DELETE"]),
+          path: z.string().min(2).describe(`Exact path after /open-apis, starting with /${root}/; query string allowed`),
+          body: z.unknown().optional().describe("JSON request body for POST, PATCH or PUT"),
+          upload: z.object({
+            field: z.string().min(1).describe("Multipart file field name from the API documentation"),
+            filename: z.string().min(1),
+            content_type: z.string().min(1),
+            base64: z.string().min(1).describe("Base64 encoded file bytes, maximum 8 MiB"),
+            fields: z.record(z.string(), z.string()).optional().describe("Additional multipart form fields"),
+          }).optional(),
+        },
+      },
+      async ({ method, path, body, upload }) => {
+        try {
+          if (!env.MCP_API_KEY) {
+            throw new Error("Set MCP_API_KEY before using the expanded Feishu API tools.");
+          }
+          return textResult(await openApiRequest(env, root, method, path, body, upload));
+        } catch (error) {
+          return toolError(error);
+        }
+      },
+    );
+  }
 
   server.registerTool(
     "list_feishu_wiki_spaces",
