@@ -11,9 +11,24 @@
 - `find_feishu_blocks`：按文本查找块
 - `update_feishu_text_block`：按 `block_id` 替换文本
 - `append_feishu_paragraph`：向文档或指定父块追加段落
+- `create_feishu_file`：一键创建知识库页面（文档、电子表格、多维表格、幻灯片、思维导图），或云空间中的文档、电子表格、多维表格、文件夹
 - `feishu_bitable_api`、`feishu_board_api`、`feishu_docs_api`、`feishu_docx_api`、`feishu_drive_api`、`feishu_mindnote_api`、`feishu_sheets_api`、`feishu_slides_api`、`feishu_wiki_api`：按飞书开放平台文档调用对应领域的 OpenAPI
 
 ## 扩展 API 的用法
+
+### 新建文件
+
+`create_feishu_file` 接收 `file_type` 和 `title`；在知识库中新建时传入 `space_id`，可选 `parent_node_token`。在云空间中新建时可选传入 `folder_token`（文件夹设为空字符串表示根目录）。两种位置不能混用。响应提供新建资源的 token，知识库还提供 `node_token`。
+
+```json
+{"tool":"create_feishu_file","arguments":{"file_type":"docx","title":"项目记录","space_id":"<space_id>"}}
+```
+
+```json
+{"tool":"create_feishu_file","arguments":{"file_type":"sheet","title":"数据表","folder_token":"<folder_token>"}}
+```
+
+云空间支持 `docx`、`sheet`、`bitable`、`folder`；知识库支持 `docx`、`sheet`、`bitable`、`slides`、`mindnote`。创建后的文档和电子表格为空；需要内容时继续调用编辑 API。使用应用的 `tenant_access_token` 时，云空间中指定的文件夹通常须由应用创建，知识库中则需要对应父节点容器编辑权限。
 
 已在飞书开通的权限并不等于 MCP 工具；一项权限可能对应多个接口，也可能仅用于事件或文件访问。上述九个工具提供 REST 通道，覆盖所列 `bitable`、`board`、`docs`（含评论、订阅和权限）、`docx`、`drive`（含文件、导入导出）、`mindnote`、`sheets`、`slides`、`wiki` 权限对应的 **tenant token 可调用的 HTTP 接口**。其中 `space:*` 是云空间权限，通常通过 `feishu_drive_api` 的 `/drive/...` 路径调用；其余接口以飞书文档公布的实际 URL 为准。工具不凭权限名猜测 URL、参数或返回结构。
 
