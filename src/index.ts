@@ -67,7 +67,7 @@ async function openApiRequest(
     if (requestBody.length > MAX_UPLOAD_BYTES) throw new Error("JSON body exceeds 8 MiB.");
   }
   const response = await fetch(`${FEISHU_BASE_URL}${safePath}`, {
-    method, headers, body: requestBody, redirect: "error",
+    method, headers, body: requestBody, redirect: "manual",
   });
   const contentLength = Number(response.headers.get("content-length") ?? 0);
   if (contentLength > MAX_RESPONSE_BYTES) throw new Error("Feishu response exceeds 8 MiB.");
