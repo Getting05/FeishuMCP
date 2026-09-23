@@ -11,6 +11,35 @@
 - `find_feishu_blocks`：按文本查找块
 - `update_feishu_text_block`：按 `block_id` 替换文本
 - `append_feishu_paragraph`：向文档或指定父块追加段落
+- `feishu_bitable_api`、`feishu_board_api`、`feishu_docs_api`、`feishu_docx_api`、`feishu_drive_api`、`feishu_mindnote_api`、`feishu_sheets_api`、`feishu_slides_api`、`feishu_wiki_api`：按飞书开放平台文档调用对应领域的 OpenAPI
+
+## 扩展 API 的用法
+
+已在飞书开通的权限并不等于 MCP 工具；一项权限可能对应多个接口，也可能仅用于事件或文件访问。上述九个工具提供 REST 通道，覆盖所列 `bitable`、`board`、`docs`（含评论、订阅和权限）、`docx`、`drive`（含文件、导入导出）、`mindnote`、`sheets`、`slides`、`wiki` 权限对应的 **tenant token 可调用的 HTTP 接口**。其中 `space:*` 是云空间权限，通常通过 `feishu_drive_api` 的 `/drive/...` 路径调用；其余接口以飞书文档公布的实际 URL 为准。工具不凭权限名猜测 URL、参数或返回结构。
+
+输入字段：
+
+- `method`：`GET`、`POST`、`PATCH`、`PUT` 或 `DELETE`。
+- `path`：从 `/open-apis` 后面开始的完整路径，含版本、资源 ID 和可选查询参数；必须以对应工具的领域前缀开头。
+- `body`：写入接口的 JSON 请求体；按对应飞书接口文档填写。
+- `upload`：multipart 上传（文件字段名、文件名、MIME 类型、base64 文件内容和附加表单字段），与 `body` 二选一。上限 8 MiB；较大文件应按飞书分片接口逐步上传，单片同样受此上限限制。
+
+JSON 响应原样返回（包括 `code`、`data`、分页标记）；下载等二进制响应返回 `base64` 和 `content_type`，单次响应上限 8 MiB。调用异常会作为 MCP tool error 返回。分页、分片上传、异步导出任务需按飞书接口文档多次调用。
+
+例如列出知识空间子节点（已知 `space_id`）：
+
+```json
+{"tool":"feishu_wiki_api","arguments":{"method":"GET","path":"/wiki/v2/spaces/<space_id>/nodes?page_size=50"}}
+```
+
+上述入口需要先设置 `MCP_API_KEY`。请把密钥配置到 Worker Secrets，并在 MCP 客户端配置 `Authorization: Bearer <MCP_API_KEY>`；不要把密钥提交到仓库。现有七个简化工具仍可使用原有连接方式。
+
+### 适用边界
+
+- 所有请求使用应用的 `tenant_access_token`。仅支持 `user_access_token` 的接口需要另外实现用户 OAuth 授权，不能通过这些工具以应用身份调用。
+- 授权范围之外，应用还需要获得目标知识空间、文档或文件本身的访问权；请发布新版飞书应用并完成管理员审批。
+- `docs:event.*` 与 `space:document.event:read` 的事件推送需要在飞书开放平台配置回调 URL、校验和事件处理流程；这些权限本身不是可同步读取的 REST 操作。此仓库目前尚未提供事件回调或持久化事件队列。
+- 不提供自动枚举全部飞书接口的功能。调用者须查阅对应接口文档并传入准确路径及请求参数；部分能力可能使用不同的 API 前缀，不能由上述九个入口访问。
 
 ## Cloudflare 配置
 
@@ -27,7 +56,7 @@
 |---|---|---|
 | `FEISHU_APP_ID` | Secret | 飞书自建应用 App ID |
 | `FEISHU_APP_SECRET` | Secret | 飞书自建应用 App Secret |
-| `MCP_API_KEY` | Secret，可选 | 设置后 `/mcp` 要求 `Authorization: Bearer ...` |
+| `MCP_API_KEY` | Secret；扩展 API 必需 | 设置后 `/mcp` 要求 `Authorization: Bearer ...` |
 
 不要把真实密钥写进 GitHub。
 
