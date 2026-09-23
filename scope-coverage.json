@@ -1,0 +1,888 @@
+{
+  "tenant": [
+    "bitable:app",
+    "bitable:app:readonly",
+    "board:whiteboard:node:create",
+    "board:whiteboard:node:delete",
+    "board:whiteboard:node:read",
+    "board:whiteboard:node:update",
+    "docs:doc",
+    "docs:doc:readonly",
+    "docs:document.comment:create",
+    "docs:document.comment:delete",
+    "docs:document.comment:read",
+    "docs:document.comment:update",
+    "docs:document.comment:write_only",
+    "docs:document.content:read",
+    "docs:document.media:download",
+    "docs:document.media:upload",
+    "docs:document.subscription",
+    "docs:document.subscription:read",
+    "docs:document:copy",
+    "docs:document:export",
+    "docs:document:import",
+    "docs:event.document_deleted:read",
+    "docs:event.document_edited:read",
+    "docs:event.document_opened:read",
+    "docs:event:subscribe",
+    "docs:permission.member",
+    "docs:permission.member:auth",
+    "docs:permission.member:create",
+    "docs:permission.member:delete",
+    "docs:permission.member:readonly",
+    "docs:permission.member:retrieve",
+    "docs:permission.member:transfer",
+    "docs:permission.member:update",
+    "docs:permission.setting",
+    "docs:permission.setting:read",
+    "docs:permission.setting:readonly",
+    "docs:permission.setting:write_only",
+    "docx:document",
+    "docx:document.block:convert",
+    "docx:document:create",
+    "docx:document:readonly",
+    "docx:document:write_only",
+    "drive:document.content:read",
+    "drive:document.mention:read",
+    "drive:drive",
+    "drive:drive.metadata:readonly",
+    "drive:drive.search:readonly",
+    "drive:drive:readonly",
+    "drive:drive:version",
+    "drive:drive:version:readonly",
+    "drive:export:readonly",
+    "drive:file",
+    "drive:file.like:readonly",
+    "drive:file.meta.sec_label.read_only",
+    "drive:file:download",
+    "drive:file:readonly",
+    "drive:file:upload",
+    "drive:file:view_record:readonly",
+    "mindnote:node:create",
+    "mindnote:node:read",
+    "sheets:spreadsheet",
+    "sheets:spreadsheet.meta:read",
+    "sheets:spreadsheet.meta:write_only",
+    "sheets:spreadsheet:create",
+    "sheets:spreadsheet:read",
+    "sheets:spreadsheet:readonly",
+    "sheets:spreadsheet:write_only",
+    "slides:presentation:create",
+    "slides:presentation:read",
+    "slides:presentation:screenshot",
+    "slides:presentation:update",
+    "slides:presentation:write_only",
+    "space:document.event:read",
+    "space:document:delete",
+    "space:document:move",
+    "space:document:retrieve",
+    "space:document:shortcut",
+    "space:folder:create",
+    "wiki:member:create",
+    "wiki:member:retrieve",
+    "wiki:member:update",
+    "wiki:node:copy",
+    "wiki:node:create",
+    "wiki:node:move",
+    "wiki:node:read",
+    "wiki:node:retrieve",
+    "wiki:node:update",
+    "wiki:setting:read",
+    "wiki:setting:write_only",
+    "wiki:space:read",
+    "wiki:space:retrieve",
+    "wiki:space:write_only",
+    "wiki:wiki",
+    "wiki:wiki:readonly"
+  ],
+  "user": [],
+  "scope_count": 94,
+  "coverage": [
+    {
+      "scope": "bitable:app",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.permission.members.auth",
+        "drive.permission.members.create",
+        "drive.permission.members.transfer_owner"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "bitable:app:readonly",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "board:whiteboard:node:create",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "board:whiteboard:node:delete",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "board:whiteboard:node:read",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "board:whiteboard:node:update",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "当前官方 CLI/SDK 快照未提供独立节点更新接口；不能按权限名臆造 URL。通用通道仍可按后续官方文档调用。"
+    },
+    {
+      "scope": "docs:doc",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comments.list",
+        "drive.file.comments.patch",
+        "drive.file.comment.replys.create",
+        "drive.file.comment.replys.delete",
+        "drive.file.comment.replys.update",
+        "drive.permission.members.auth",
+        "drive.permission.members.create",
+        "drive.permission.members.transfer_owner",
+        "drive.permission.public.get",
+        "drive.permission.public.patch"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:doc:readonly",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comments.list",
+        "drive.file.comments.patch",
+        "drive.file.comment.replys.create",
+        "drive.file.comment.replys.delete",
+        "drive.file.comment.replys.update"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.comment:create",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comments.create_v2",
+        "drive.file.comment.replys.create",
+        "drive.file.comment.reply.reactions.update_reaction"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.comment:delete",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comment.replys.delete"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.comment:read",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comments.batch_query",
+        "drive.file.comments.list",
+        "drive.file.comment.replys.list",
+        "drive.user.remove_subscription",
+        "drive.user.subscription",
+        "drive.user.subscription_status"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.comment:update",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comments.patch",
+        "drive.file.comment.replys.update"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.comment:write_only",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comments.create_v2",
+        "drive.file.comments.patch",
+        "drive.file.comment.replys.delete",
+        "drive.file.comment.replys.update",
+        "drive.file.comment.reply.reactions.update_reaction"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.content:read",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.media:download",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.media:upload",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.subscription",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document.subscription:read",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document:copy",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.files.copy"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document:export",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:document:import",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:event.document_deleted:read",
+      "status": "callback_implemented_not_deployed",
+      "documented_endpoints": [],
+      "note": "对应事件接收需要配置 /feishu/events、校验密钥和后台事件订阅；尚未端到端验证。"
+    },
+    {
+      "scope": "docs:event.document_edited:read",
+      "status": "callback_implemented_not_deployed",
+      "documented_endpoints": [],
+      "note": "对应事件接收需要配置 /feishu/events、校验密钥和后台事件订阅；尚未端到端验证。"
+    },
+    {
+      "scope": "docs:event.document_opened:read",
+      "status": "callback_implemented_not_deployed",
+      "documented_endpoints": [],
+      "note": "对应事件接收需要配置 /feishu/events、校验密钥和后台事件订阅；尚未端到端验证。"
+    },
+    {
+      "scope": "docs:event:subscribe",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.member",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.member:auth",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.permission.members.auth"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.member:create",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.permission.members.create"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.member:delete",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.member:readonly",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.member:retrieve",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.member:transfer",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.permission.members.transfer_owner"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.member:update",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.setting",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.setting:read",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.permission.public.get"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.setting:readonly",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docs:permission.setting:write_only",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.permission.public.patch"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docx:document",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docx:document.block:convert",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docx:document:create",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docx:document:readonly",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "docx:document:write_only",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.files.patch"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:document.content:read",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:document.mention:read",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:drive",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.files.copy",
+        "drive.files.create_folder",
+        "drive.files.list",
+        "drive.file.comments.batch_query",
+        "drive.file.comments.list",
+        "drive.file.comments.patch",
+        "drive.file.comment.replys.create",
+        "drive.file.comment.replys.delete",
+        "drive.file.comment.replys.list",
+        "drive.file.comment.replys.update",
+        "drive.permission.members.auth",
+        "drive.permission.members.create",
+        "drive.permission.members.transfer_owner",
+        "drive.permission.public.get",
+        "drive.permission.public.patch",
+        "drive.metas.batch_query",
+        "drive.file.statistics.get",
+        "sheets.spreadsheets.create",
+        "sheets.spreadsheets.get",
+        "sheets.spreadsheets.patch",
+        "sheets.spreadsheet.sheet.filters.create",
+        "sheets.spreadsheet.sheet.filters.delete",
+        "sheets.spreadsheet.sheet.filters.get",
+        "sheets.spreadsheet.sheet.filters.update",
+        "sheets.spreadsheet.sheets.find"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:drive.metadata:readonly",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.metas.batch_query",
+        "drive.file.statistics.get"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:drive.search:readonly",
+      "status": "requires_user_oauth",
+      "documented_endpoints": [
+        "drive.search.legacy"
+      ],
+      "note": "旧搜索接口仅支持 user token；新版应用搜索需要额外 search:docs:read。用户清单 user=[]。"
+    },
+    {
+      "scope": "drive:drive:readonly",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.files.list",
+        "drive.file.comments.batch_query",
+        "drive.file.comments.list",
+        "drive.file.comments.patch",
+        "drive.file.comment.replys.create",
+        "drive.file.comment.replys.delete",
+        "drive.file.comment.replys.list",
+        "drive.file.comment.replys.update",
+        "drive.permission.public.get",
+        "drive.file.statistics.get",
+        "sheets.spreadsheets.get",
+        "sheets.spreadsheet.sheet.filters.get",
+        "sheets.spreadsheet.sheets.find"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:drive:version",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:drive:version:readonly",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:export:readonly",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:file",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.permission.members.create",
+        "drive.permission.public.get",
+        "drive.permission.public.patch"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:file.like:readonly",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:file.meta.sec_label.read_only",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:file:download",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:file:readonly",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:file:upload",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.files.patch"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "drive:file:view_record:readonly",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.view_records.list"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "mindnote:node:create",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "mindnotes.nodes.create"
+      ],
+      "note": "已收录正确路由 /mindnote/v1/mindnotes/{mindnote_id}/nodes；缺少可访问的专用资源，未实测成功。"
+    },
+    {
+      "scope": "mindnote:node:read",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "mindnotes.nodes.list"
+      ],
+      "note": "已收录正确路由 /mindnote/v1/mindnotes/{mindnote_id}/nodes；缺少可访问的专用资源，未实测成功。"
+    },
+    {
+      "scope": "sheets:spreadsheet",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comments.list",
+        "drive.file.comments.patch",
+        "drive.file.comment.replys.create",
+        "drive.file.comment.replys.delete",
+        "drive.file.comment.replys.update",
+        "drive.permission.members.auth",
+        "drive.permission.members.create",
+        "drive.permission.members.transfer_owner",
+        "drive.permission.public.get",
+        "drive.permission.public.patch",
+        "sheets.spreadsheets.create",
+        "sheets.spreadsheets.get",
+        "sheets.spreadsheets.patch",
+        "sheets.spreadsheet.sheet.filters.create",
+        "sheets.spreadsheet.sheet.filters.delete",
+        "sheets.spreadsheet.sheet.filters.get",
+        "sheets.spreadsheet.sheet.filters.update",
+        "sheets.spreadsheet.sheets.find"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "sheets:spreadsheet.meta:read",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "sheets.spreadsheets.get"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "sheets:spreadsheet.meta:write_only",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "sheets.spreadsheets.patch"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "sheets:spreadsheet:create",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "sheets.spreadsheets.create"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "sheets:spreadsheet:read",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "sheets.spreadsheet.sheet.filters.get",
+        "sheets.spreadsheet.sheets.find"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "sheets:spreadsheet:readonly",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.file.comments.list",
+        "drive.file.comments.patch",
+        "drive.file.comment.replys.create",
+        "drive.file.comment.replys.delete",
+        "drive.file.comment.replys.update",
+        "sheets.spreadsheets.get",
+        "sheets.spreadsheet.sheet.filters.get",
+        "sheets.spreadsheet.sheets.find"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "sheets:spreadsheet:write_only",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.files.patch",
+        "sheets.spreadsheet.sheet.filters.create",
+        "sheets.spreadsheet.sheet.filters.delete",
+        "sheets.spreadsheet.sheet.filters.update"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "slides:presentation:create",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "slides.xml_presentations.create"
+      ],
+      "note": "已修复 /slides_ai/v1 路由并增加云空间创建；未部署，线上尚未实测成功。"
+    },
+    {
+      "scope": "slides:presentation:read",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "slides.xml_presentations.get",
+        "slides.xml_presentation.history.list",
+        "slides.xml_presentation.history.revert_status",
+        "slides.xml_presentation.slide.get"
+      ],
+      "note": "已修复 /slides_ai/v1 路由并增加云空间创建；未部署，线上尚未实测成功。"
+    },
+    {
+      "scope": "slides:presentation:screenshot",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "slides.xml_presentation.slide_image.list",
+        "slides.xml_presentation.slide_image.render"
+      ],
+      "note": "已修复 /slides_ai/v1 路由并增加云空间创建；未部署，线上尚未实测成功。"
+    },
+    {
+      "scope": "slides:presentation:update",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "slides.xml_presentation.history.revert",
+        "slides.xml_presentation.slide.create",
+        "slides.xml_presentation.slide.delete",
+        "slides.xml_presentation.slide.replace"
+      ],
+      "note": "已修复 /slides_ai/v1 路由并增加云空间创建；未部署，线上尚未实测成功。"
+    },
+    {
+      "scope": "slides:presentation:write_only",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "slides.xml_presentation.history.revert",
+        "slides.xml_presentation.slide.create",
+        "slides.xml_presentation.slide.delete",
+        "slides.xml_presentation.slide.replace"
+      ],
+      "note": "已修复 /slides_ai/v1 路由并增加云空间创建；未部署，线上尚未实测成功。"
+    },
+    {
+      "scope": "space:document.event:read",
+      "status": "callback_implemented_not_deployed",
+      "documented_endpoints": [],
+      "note": "对应事件接收需要配置 /feishu/events、校验密钥和后台事件订阅；尚未端到端验证。"
+    },
+    {
+      "scope": "space:document:delete",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "space:document:move",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "space:document:retrieve",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.files.list"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "space:document:shortcut",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "space:folder:create",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.files.create_folder"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:member:create",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.members.create"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:member:retrieve",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.members.list"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:member:update",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.members.delete"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:node:copy",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.nodes.copy"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:node:create",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.nodes.create"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:node:move",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:node:read",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.spaces.get_node"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:node:retrieve",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.nodes.list"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:node:update",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:setting:read",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:setting:write_only",
+      "status": "scope_mapping_unverified",
+      "documented_endpoints": [],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:space:read",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.spaces.get"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:space:retrieve",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.spaces.list"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:space:write_only",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.spaces.create"
+      ],
+      "note": "目录中的新建知识空间接口仅支持 user token；空间设置另有接口，不能以 tenant scopes 替代 OAuth。"
+    },
+    {
+      "scope": "wiki:wiki",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "drive.permission.members.auth",
+        "drive.permission.members.create",
+        "drive.permission.members.transfer_owner",
+        "drive.permission.public.get",
+        "drive.permission.public.patch",
+        "wiki.spaces.create",
+        "wiki.spaces.get",
+        "wiki.spaces.get_node",
+        "wiki.spaces.list",
+        "wiki.members.create",
+        "wiki.members.delete",
+        "wiki.members.list",
+        "wiki.nodes.copy",
+        "wiki.nodes.create",
+        "wiki.nodes.list"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    },
+    {
+      "scope": "wiki:wiki:readonly",
+      "status": "documented_routes",
+      "documented_endpoints": [
+        "wiki.spaces.get",
+        "wiki.spaces.get_node",
+        "wiki.spaces.list",
+        "wiki.members.list",
+        "wiki.nodes.list"
+      ],
+      "note": "目录声明不等于租户实际授权；权限之间可能是任选其一。"
+    }
+  ]
+}

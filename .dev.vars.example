@@ -1,4 +1,5 @@
 FEISHU_APP_ID=cli_xxxxxxxxxxxxx
 FEISHU_APP_SECRET=xxxxxxxxxxxxxxxx
-# Optional. If set, callers must send Authorization: Bearer <value>.
-# MCP_API_KEY=replace-with-a-long-random-value
+# Optional: event callback verification (configure in Feishu Events & Callbacks).
+# FEISHU_VERIFICATION_TOKEN=your-verification-token
+# FEISHU_ENCRYPT_KEY=your-encrypt-key

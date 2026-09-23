@@ -28,15 +28,15 @@
 {"tool":"create_feishu_file","arguments":{"file_type":"sheet","title":"数据表","folder_token":"<folder_token>"}}
 ```
 
-云空间支持 `docx`、`sheet`、`bitable`、`folder`；知识库支持 `docx`、`sheet`、`bitable`、`slides`、`mindnote`。创建后的文档和电子表格为空；需要内容时继续调用编辑 API。使用应用的 `tenant_access_token` 时，云空间中指定的文件夹通常须由应用创建，知识库中则需要对应父节点容器编辑权限。
+云空间支持 `docx`、`sheet`、`bitable`、`folder`，以及通过 `/slides_ai/v1/xml_presentations` 创建空白 `slides`（暂不接受 `folder_token`，创建后可用 Drive 移动）；知识库支持 `docx`、`sheet`、`bitable`、`slides`、`mindnote`。创建后的文档和电子表格为空；需要内容时继续调用编辑 API。使用应用的 `tenant_access_token` 时，云空间中指定的文件夹通常须由应用创建，知识库中则需要对应父节点容器编辑权限。
 
-已在飞书开通的权限并不等于 MCP 工具；一项权限可能对应多个接口，也可能仅用于事件或文件访问。上述九个工具提供 REST 通道，覆盖所列 `bitable`、`board`、`docs`（含评论、订阅和权限）、`docx`、`drive`（含文件、导入导出）、`mindnote`、`sheets`、`slides`、`wiki` 权限对应的 **tenant token 可调用的 HTTP 接口**。其中 `space:*` 是云空间权限，通常通过 `feishu_drive_api` 的 `/drive/...` 路径调用；其余接口以飞书文档公布的实际 URL 为准。工具不凭权限名猜测 URL、参数或返回结构。
+已在飞书开通的权限并不等于 MCP 工具；一项权限可能对应多个接口，也可能仅用于事件或文件访问。上述九个工具提供 REST 通道，可调用所列 `bitable`、`board`、`docs`（含评论、订阅和权限）、`docx`、`drive`（含文件、导入导出）、`mindnote`、`sheets`、`slides`、`wiki` 领域的 **tenant token 可调用的 HTTP 接口**；具体权限映射与未验证项见 `scope-coverage.json`。其中 `space:*` 是云空间权限，通常通过 `feishu_drive_api` 的 `/drive/...` 路径调用；其余接口以飞书文档公布的实际 URL 为准。工具不凭权限名猜测 URL、参数或返回结构。
 
 输入字段：
 
 - `method`：`GET`、`POST`、`PATCH`、`PUT` 或 `DELETE`。
-- `path`：从 `/open-apis` 后面开始的完整路径，含版本、资源 ID 和可选查询参数；必须以对应工具的领域前缀开头。
-- `body`：写入接口的 JSON 请求体；按对应飞书接口文档填写。
+- `path`：从 `/open-apis` 后面开始的完整路径，含版本、资源 ID 和可选查询参数；必须以对应工具的领域前缀开头。`feishu_slides_api` 另支持 `/slides_ai/`，`feishu_docs_api` 另支持 `/docs_ai/`；`feishu_drive_api` 另允许两个文档搜索的精确路径 `/suite/docs-api/search/object` 和 `/search/v2/doc_wiki/search`。
+- `body`：POST、PATCH、PUT、DELETE 接口的 JSON 请求体；GET 不接受。画板批量删除和 Wiki 成员删除等接口需要 DELETE 请求体。
 - `upload`：multipart 上传（文件字段名、文件名、MIME 类型、base64 文件内容和附加表单字段），与 `body` 二选一。上限 8 MiB；较大文件应按飞书分片接口逐步上传，单片同样受此上限限制。
 
 JSON 响应原样返回（包括 `code`、`data`、分页标记）；下载等二进制响应返回 `base64` 和 `content_type`，单次响应上限 8 MiB。调用异常会作为 MCP tool error 返回。分页、分片上传、异步导出任务需按飞书接口文档多次调用。
@@ -53,8 +53,8 @@ JSON 响应原样返回（包括 `code`、`data`、分页标记）；下载等�
 
 - 所有请求使用应用的 `tenant_access_token`。仅支持 `user_access_token` 的接口需要另外实现用户 OAuth 授权，不能通过这些工具以应用身份调用。
 - 授权范围之外，应用还需要获得目标知识空间、文档或文件本身的访问权；请发布新版飞书应用并完成管理员审批。
-- `docs:event.*` 与 `space:document.event:read` 的事件推送需要在飞书开放平台配置回调 URL、校验和事件处理流程；这些权限本身不是可同步读取的 REST 操作。此仓库目前尚未提供事件回调或持久化事件队列。
-- 不提供自动枚举全部飞书接口的功能。调用者须查阅对应接口文档并传入准确路径及请求参数；部分能力可能使用不同的 API 前缀，不能由上述九个入口访问。
+- `docs:event.*` 与 `space:document.event:read` 的事件推送需要在飞书开放平台配置回调 URL、校验和事件处理流程；这些权限本身不是可同步读取的 REST 操作。本版已提供 `/feishu/events` 回调与 Durable Object 持久化事件收件箱，必须完成下方配置后才生效。
+- `search_feishu_api` 提供官方 CLI/SDK 快照中 205 条文档接口记录，并非飞书全部 OpenAPI。`call_feishu_api` 根据接口 ID 填充路径与查询参数；未知或新增接口仍可使用领域通道。目录的 scopes/accessTokens 为 null 表示官方 SDK 快照缺少这类元数据，不代表无需权限。
 
 ## Cloudflare 配置
 
@@ -115,3 +115,46 @@ npm run typecheck
 ## 安全提示
 
 `/mcp` 当前不做客户端身份校验。任何知道 Worker URL 的人都能以飞书应用身份调用工具，包括编辑、删除和权限管理接口。请限制 Worker 的访问范围，或在需要公开部署时为 MCP 接口加上客户端鉴权。
+
+## 本次增加的工具
+
+- `search_feishu_api`：按关键词、领域或 scope 查目录；指定 `endpoint_id` 返回完整参数说明。
+- `call_feishu_api`：按目录 ID 调用一个接口；已知仅支持用户的接口会在本地拒绝。SDK 来源条目可附加文档规定的查询参数，CLI 来源条目检查已知必填参数。
+- `list_feishu_events`：分页读取已经验签、持久化、按 event_id 去重的事件。游标按事件 ID 排序，不是时间顺序；收件箱读取不是可靠消费确认协议，并发新事件应周期性从头扫描、按 event_id 去重。
+
+示例（先查元数据，确认当前参数和身份限制）：
+
+```json
+{"name":"search_feishu_api","arguments":{"query":"slides"}}
+```
+
+```json
+{"name":"call_feishu_api","arguments":{"endpoint_id":"mindnotes.nodes.list","parameters":{"mindnote_id":"YOUR_TEST_MINDNOTE_TOKEN"}}}
+```
+
+## 事件回调部署
+
+1. 使用现有飞书应用的 `FEISHU_APP_ID`、`FEISHU_APP_SECRET`。
+2. 设置 Worker Secret `FEISHU_VERIFICATION_TOKEN`；若飞书开启加密，另设置 `FEISHU_ENCRYPT_KEY`，两端值一致。不要把密钥写入 Git。
+3. `wrangler.jsonc` 已添加 `FEISHU_EVENTS` Durable Object 绑定和首次 SQLite migration。部署至现有 Worker 时保留已有迁移，避免覆盖其他环境的绑定。
+4. 飞书开发者后台配置请求地址 `https://YOUR_WORKER/feishu/events`，验证 challenge 并添加所需文档事件；需要资源订阅的事件另调用 `/drive/v1/files/{file_token}/subscribe`。
+5. 修改专用测试文档，用 `list_feishu_events` 验证到达。事件持久化失败不会返回成功 ACK，飞书可重试。
+
+接收器支持明文 Verification Token 校验、AES-256-CBC 解密、SHA-256 签名、5 分钟签名时间窗、1 MiB 请求限制、按 event_id 去重。挑战校验按飞书协议使用验证 Token；加密普通事件必须同时通过签名。存储不保存 envelope 中的 verification token。事件目前永久保留，生产环境应根据数据保留要求管理/清理存储。配置缺失时回调返回 503，不会静默丢弃。
+
+## 验证与边界
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npx wrangler deploy --dry-run
+```
+
+`npm test` 包含每条目录路由的模拟转发契约测试，以及 DELETE body、二进制、multipart、大小限制、路径隔离、回调校验和去重测试。**模拟测试通过不代表该租户的全部飞书业务接口测试通过。**
+
+`scripts/*audit.py` 是本次线上复现脚本，会创建测试资源。指定 `MCP_ENDPOINT` 和 `AUDIT_DIR` 可修改目标/结果目录；默认输出到项目外 `../../outputs`。扩展脚本读取先前生成的资源清单，不应用于不明来源的 token。每次响应都会立即落盘，不会自动重试不确定的写入。Wiki 脚本要求设置 `FEISHU_TEST_SPACE_ID` 和 `FEISHU_TEST_PARENT_NODE`，仅在指定节点下创建测试子节点。测试创建资源在报告中列出，未自动清理的保留供复查。
+
+`scope-coverage.json` 逐项保留本次提供的 94 个 tenant scope。开通权限并不等于所有 API 都接受 tenant token：例如目录中的新建 Wiki 空间只支持 user token，旧版文档搜索亦需要用户身份。新版搜索支持应用身份，但需要额外的 `search:docs:read`。未提供用户授权时，不会伪装成已实现 user OAuth。
+
+目录来自 `larksuite/cli` 和 `larksuite/node-sdk` 官方源码，许可证见 `THIRD_PARTY_NOTICES.md`。刷新方法：`python3 scripts/build-catalog.py /path/to/cli /path/to/node-sdk`，然后运行 `python3 scripts/scope-coverage.py` 和上述检查。SDK 中没有 scope 元数据的条目显式保留 null，不能用权限名猜测路由或补填未经验证的权限声明。
